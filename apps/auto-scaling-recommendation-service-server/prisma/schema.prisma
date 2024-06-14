@@ -1,0 +1,57 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Ec2Instance {
+  availabilityZone        String?
+  costOptimizations       CostOptimization[]
+  createdAt               DateTime                @default(now())
+  id                      String                  @id @default(cuid())
+  instanceId              String?
+  instanceType            String?
+  launchTime              DateTime?
+  scalingRecommendations  ScalingRecommendation[]
+  updatedAt               DateTime                @updatedAt
+  utilizationMetricsItems UtilizationMetrics[]
+}
+
+model ScalingRecommendation {
+  createdAt               DateTime     @default(now())
+  ec2Instance             Ec2Instance? @relation(fields: [ec2InstanceId], references: [id])
+  ec2InstanceId           String?
+  id                      String       @id @default(cuid())
+  maxInstances            Int?
+  minInstances            Int?
+  recommendedInstanceType String?
+  recommendedQuantity     Int?
+  scalingPolicy           String?
+  updatedAt               DateTime     @updatedAt
+}
+
+model CostOptimization {
+  createdAt               DateTime     @default(now())
+  ec2Instance             Ec2Instance? @relation(fields: [ec2InstanceId], references: [id])
+  ec2InstanceId           String?
+  estimatedCostSaving     Float?
+  id                      String       @id @default(cuid())
+  recommendedPricingModel String?
+  updatedAt               DateTime     @updatedAt
+}
+
+model UtilizationMetrics {
+  cpuUsage      Float?
+  createdAt     DateTime     @default(now())
+  ec2Instance   Ec2Instance? @relation(fields: [ec2InstanceId], references: [id])
+  ec2InstanceId String?
+  id            String       @id @default(cuid())
+  memoryUsage   Float?
+  networkUsage  Float?
+  storageUsage  Float?
+  timestamp     DateTime?
+  updatedAt     DateTime     @updatedAt
+}
